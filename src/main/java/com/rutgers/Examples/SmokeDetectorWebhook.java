@@ -5,33 +5,22 @@
  */
 package com.rutgers.Examples;
 
-import com.google.common.io.Resources;
 import com.rutgers.Core.Listener;
 import com.rutgers.Core.Message;
 import com.rutgers.Core.MessageListener;
 import com.rutgers.Core.PulsarConsumer;
+import org.apache.commons.lang.StringEscapeUtils;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.io.OutputStream;
-import java.io.BufferedWriter;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 
 /**
  * This is and example of the use of the R-Pulsar API.
@@ -40,28 +29,16 @@ import java.io.FileWriter;
  * @param keys
  * @return
  */
-public class SmokeConsumerFaas {
+public class SmokeDetectorWebhook {
     static boolean running = false;
     static Thread thread = null;
     static PulsarConsumer consumer = null;
     static String functionUrl = "http://rpulsarless.freeddns.org:32006/function/env";
-    static String outputFile = "/data/data";
+    static String webhookUrl = "https://webhook.site/fb5cf153-c9ac-4ca7-9ac7-7cfc94541e62";    
 
-    public static void invokeFunction(String payload) {
+    private static String sendPOST(String endpoint, String payload) throws IOException {
         String userAgent = "Mozilla/5.0";
-        System.out.printf("Invoking function at %s\n", functionUrl);
-        try {
-            String result = sendPOST(userAgent, functionUrl, payload);
-            System.out.println(result);
-            writeResult(result);
-        } catch (IOException e) {
 
-            e.printStackTrace();
-        }
-
-    }
-
-    private static String sendPOST(String userAgent, String endpoint, String payload) throws IOException {
         URL obj = new URL(endpoint);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("POST");
@@ -92,17 +69,7 @@ public class SmokeConsumerFaas {
         }
         throw new IOException("Error handling request");
     }
-    private static void writeResult(String str){
-        try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
-            writer.write(str);       
-            writer.close();
-        }
-        catch (IOException e){
-            System.out.println("Unable to write the result");
-        }
-        
-    }
+    
 
     public static class Consum implements Runnable {
         Message.ARMessage msg;
@@ -111,8 +78,8 @@ public class SmokeConsumerFaas {
 
         Consum(Message.ARMessage msg) {
             this.msg = msg;
-            String profile_value = "SmokeDetector";
-            profile = Message.ARMessage.Header.Profile.newBuilder().addSingle(profile_value).addSingle("nocrash").build();
+            String profile_value = "NULL";
+            profile = Message.ARMessage.Header.Profile.newBuilder().addSingle(profile_value).build();
             header = Message.ARMessage.Header.newBuilder().setLatitude(0.00).setLongitude(0.00)
                     .setType(Message.ARMessage.RPType.AR_CONSUMER).setProfile(profile).setPeerId(consumer.getPeerID())
                     .build();
@@ -129,13 +96,16 @@ public class SmokeConsumerFaas {
 
                     String payload = poll.getPayload(0);
                     System.out.println("Received: " + StringEscapeUtils.unescapeJava(payload));
-                    invokeFunction(payload);
+                    sendPOST(webhookUrl, payload);
 
                     TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(HelloWorldPublisher.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (NoSuchAlgorithmException | InvalidKeySpecException | UnknownHostException ex) {
                     Logger.getLogger(Consumer.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
             }
         }
@@ -198,7 +168,7 @@ public class SmokeConsumerFaas {
             // Message.ARMessage.Header.Profile profile =
             // Message.ARMessage.Header.Profile.newBuilder().addSingle(profile_value).build();
             Message.ARMessage.Header.Profile profile = Message.ARMessage.Header.Profile.newBuilder()
-                    .addSingle("temperature").addSingle("fahrenheit").build();
+                    .addSingle("SmokeDetector").addSingle("nocrash").build();
             // Create a header and set our physical location
             Message.ARMessage.Header header = Message.ARMessage.Header.newBuilder().setLatitude(0.00).setLongitude(0.00)
                     .setType(Message.ARMessage.RPType.AR_CONSUMER).setProfile(profile).setPeerId(consumer.getPeerID())
