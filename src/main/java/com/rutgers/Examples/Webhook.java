@@ -44,8 +44,7 @@ public class Webhook {
     static boolean running = false;
     static Thread thread = null;
     static PulsarConsumer consumer = null;
-    static String functionUrl = "http://rpulsarless.freeddns.org:32006/function/env";
-    static String webhookUrl = "https://webhook.site/fb5cf153-c9ac-4ca7-9ac7-7cfc94541e62";    
+    static String webhookUrl = "https://webhook.site/fb5cf153-c9ac-4ca7-9ac7-7cfc94541e62";
 
     private static String sendPOST(String endpoint, String payload) throws IOException {
         String userAgent = "Mozilla/5.0";

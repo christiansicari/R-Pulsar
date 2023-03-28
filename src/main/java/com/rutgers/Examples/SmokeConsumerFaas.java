@@ -141,19 +141,12 @@ public class SmokeConsumerFaas {
         }
     }
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) throws UnknownHostException, ClassNotFoundException {
+
+    public static void start(String propsFile) throws UnknownHostException, ClassNotFoundException {
         try {
             Thread.sleep(10000);
-            if (args.length == 0) {
-                System.out.println("Need to specify the consumer property file!!");
-                System.exit(0);
-            }
-
             // Load the consumer properties into an InputStream
-            InputStream props = new FileInputStream(args[0]);// Resources.getResource("consumer.prop").openStream();
+            InputStream props = new FileInputStream(propsFile);// Resources.getResource("consumer.prop").openStream();
             // Create a java util properties object
             Properties properties = new Properties();
             // Load the consumer properties into memory
@@ -213,5 +206,8 @@ public class SmokeConsumerFaas {
         } catch (IOException | InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException ex) {
             Logger.getLogger(HelloWorldPublisher.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    public static void main(String[] arg) throws UnknownHostException, ClassNotFoundException {
+        start(arg[0]);
     }
 }
