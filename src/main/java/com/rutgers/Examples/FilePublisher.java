@@ -80,19 +80,11 @@ public class FilePublisher {
         }
     }
     
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) throws UnknownHostException, ClassNotFoundException {
+
+    public static void start(String propsFile) throws UnknownHostException, ClassNotFoundException {
         try {
-        	
-        	if(args.length == 0) {
-    	        System.out.println("Need to specify the producer property file!!");
-    	        System.exit(0);
-        	}
-        	
             // TODO code application logic here           
-            InputStream props = new FileInputStream(args[0]);//Resources.getResource("producer.prop").openStream();
+            InputStream props = new FileInputStream(propsFile);//Resources.getResource("producer.prop").openStream();
             Properties properties = new Properties();
             properties.load(props);
             
@@ -132,5 +124,9 @@ public class FilePublisher {
         } catch (IOException | InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException ex) {
             Logger.getLogger(HelloWorldPublisher.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    public static void main(String[] arg) throws UnknownHostException, ClassNotFoundException {
+        start(arg[0]);
+
     }
 }
