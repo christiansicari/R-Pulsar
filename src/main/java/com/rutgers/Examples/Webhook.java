@@ -177,6 +177,8 @@ public class Webhook {
             // String profile_value = "SmokeDetector";
             // Message.ARMessage.Header.Profile profile =
             // Message.ARMessage.Header.Profile.newBuilder().addSingle(profile_value).build();
+            //Message.ARMessage.Header.Profile profile = Message.ARMessage.Header.Profile.newBuilder()
+             //       .addSingle("function").addSingle("env").build();
             Message.ARMessage.Header.Profile profile = Message.ARMessage.Header.Profile.newBuilder()
                     .addSingle("function").addSingle("env").build();
             // Create a header and set our physical location

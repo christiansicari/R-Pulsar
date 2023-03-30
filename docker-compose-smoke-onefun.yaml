@@ -1,0 +1,69 @@
+version: '3.7'
+services:
+
+  master:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rpulsar-master
+    network_mode: "host"
+    command: [ -l, x, -gps, 40:-74  , -p, "5000" ]
+
+  smokedetec:
+    image: iperezx/sage-smoke-detection:0.7.0
+    container_name: smokedetector
+    environment:
+      - TOPIC_SMOKE=env.smoke.
+      - PYWAGGLE_LOG_DIR=pywaggle-logs
+      - MODEL_FILE=model.onnx
+      - MODEL_TYPE=smokeynet
+      - CAMERA_TYPE=hpwren
+    command: [-delay, "1.0"]
+    volumes:
+      - ${PWD}/pywaggle-logs:/src/pywaggle-logs
+
+  producer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rpulsar-producer
+    network_mode: "host"
+    depends_on:
+      - master
+      - smokedetec
+    entrypoint: java -cp Rpulsar.jar
+    command: [com.rutgers.Examples.SmokePublisher,/R-Pulsar/pywaggle-logs/data.ndjson,/R-Pulsar/propertyFiles/producer.prop]
+    volumes:
+      - ${PWD}/propertyFiles/producer.prop:/R-Pulsar/propertyFiles/producer.prop
+      - ${PWD}/pywaggle-logs:/R-Pulsar/pywaggle-logs/
+
+  function-consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rpulsar-function
+    network_mode: "host"
+    depends_on:
+      - master
+      - producer
+    entrypoint: java -cp Rpulsar.jar
+    command: [com.rutgers.Examples.Function,/R-Pulsar/propertyFiles/producer.prop,/R-Pulsar/propertyFiles/consumer.prop,/R-Pulsar/configFiles/smokeconsumer.prop]
+    volumes:
+      - ${PWD}/propertyFiles/functionproducer.prop:/R-Pulsar/propertyFiles/producer.prop
+      - ${PWD}/propertyFiles/consumer.prop:/R-Pulsar/propertyFiles/consumer.prop
+      - ${PWD}/configFiles/smokeconsumer.prop:/R-Pulsar/configFiles/smokeconsumer.prop
+      - ${PWD}/data/data:/data/data
+
+  webhook-consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rpulsar-webhook
+    network_mode: "host"
+    depends_on:
+      - master
+      - producer
+    entrypoint: java -cp Rpulsar.jar
+    command: [com.rutgers.Examples.Webhook,/R-Pulsar/propertyFiles/consumer.prop]
+    volumes:
+      - ${PWD}/propertyFiles/webhookconsumer.prop:/R-Pulsar/propertyFiles/consumer.prop
