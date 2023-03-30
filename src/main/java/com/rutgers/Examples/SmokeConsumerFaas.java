@@ -33,21 +33,14 @@ import java.io.InputStreamReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 
-/**
- * This is and example of the use of the R-Pulsar API.
- * This example shows how to build a R-Pulsar consumer.
- * 
- * @param keys
- * @return
- */
+
 public class SmokeConsumerFaas {
     static boolean running = false;
     static Thread thread = null;
     static PulsarConsumer consumer = null;
-    static String functionUrl = "http://rpulsarless.freeddns.org:32006/function/env";
     static String outputFile = "/data/data";
 
-    public static void invokeFunction(String payload) {
+    public static void invokeFunction(String functionUrl, String payload) {
         String userAgent = "Mozilla/5.0";
         System.out.printf("Invoking function at %s\n", functionUrl);
         try {
@@ -108,9 +101,11 @@ public class SmokeConsumerFaas {
         Message.ARMessage msg;
         Message.ARMessage.Header.Profile profile;
         Message.ARMessage.Header header;
+        String functionUrl;
 
-        Consum(Message.ARMessage msg) {
+        Consum(Message.ARMessage msg, String functionUrl) {
             this.msg = msg;
+            this.functionUrl = functionUrl;
             String profile_value = "SmokeDetector";
             profile = Message.ARMessage.Header.Profile.newBuilder().addSingle(profile_value).build();
             header = Message.ARMessage.Header.newBuilder().setLatitude(0.00).setLongitude(0.00)
@@ -129,7 +124,7 @@ public class SmokeConsumerFaas {
 
                     String payload = poll.getPayload(0);
                     System.out.println("Received: " + StringEscapeUtils.unescapeJava(payload));
-                    invokeFunction(payload);
+                    invokeFunction(functionUrl, payload);
 
                     TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException ex) {
@@ -141,8 +136,24 @@ public class SmokeConsumerFaas {
         }
     }
 
+    public static Message.ARMessage.Header.Profile getProfile(Properties conf){
+        /*Message.ARMessage.Header.Profile profile = Message.ARMessage.Header.Profile.newBuilder()
+                .addSingle("temperature").addSingle("fahrenheit").build();
+        // Create a header and set our physical location
+        */
+        String prefix = "profile.in";
+        Message.ARMessage.Header.Profile.Builder builder = Message.ARMessage.Header.Profile.newBuilder();
 
-    public static void start(String propsFile) throws UnknownHostException, ClassNotFoundException {
+        for (String key : conf.stringPropertyNames()) {
+            if (key.startsWith(prefix)) {
+                String prof = conf.getProperty(key);
+                builder = builder.addSingle(prof);
+                System.out.printf("Adding profile %s\n", prof);
+            }
+        }
+        return builder.build();
+    }
+    public static void start(String propsFile, String confFile) throws UnknownHostException, ClassNotFoundException {
         try {
             Thread.sleep(10000);
             // Load the consumer properties into an InputStream
@@ -151,6 +162,13 @@ public class SmokeConsumerFaas {
             Properties properties = new Properties();
             // Load the consumer properties into memory
             properties.load(props);
+
+            InputStream conf = new FileInputStream(confFile);// Resources.getResource("consumer.prop").openStream();
+            // Create a java util properties object
+            Properties confProperties = new Properties();
+            // Load the consumer properties into memory
+            confProperties.load(conf);
+
 
             // Create a new R-Pulsar consumer object
             consumer = new PulsarConsumer(properties);
@@ -167,7 +185,7 @@ public class SmokeConsumerFaas {
                         case NOTIFY_START:
                             running = true;
                             // Start a new thread with the Consum class
-                            thread = new Thread(new Consum(o));
+                            thread = new Thread(new Consum(o, confProperties.getProperty("function")));
                             thread.start();
                             break;
                         // We will not receive any more data from the sensors
@@ -185,17 +203,11 @@ public class SmokeConsumerFaas {
                     }
                 }
             });
-
-            // Create a profile with the data that we are interested in
-            // String profile_value = "SmokeDetector";
-            // Message.ARMessage.Header.Profile profile =
-            // Message.ARMessage.Header.Profile.newBuilder().addSingle(profile_value).build();
-            Message.ARMessage.Header.Profile profile = Message.ARMessage.Header.Profile.newBuilder()
-                    .addSingle("temperature").addSingle("fahrenheit").build();
-            // Create a header and set our physical location
+            Message.ARMessage.Header.Profile profile = getProfile(confProperties);
             Message.ARMessage.Header header = Message.ARMessage.Header.newBuilder().setLatitude(0.00).setLongitude(0.00)
                     .setType(Message.ARMessage.RPType.AR_CONSUMER).setProfile(profile).setPeerId(consumer.getPeerID())
                     .build();
+
             // Create an AR Message and tell the system to notify us if there is a profile
             // that matches this criteria
             Message.ARMessage msg = Message.ARMessage.newBuilder().setHeader(header)
@@ -208,6 +220,6 @@ public class SmokeConsumerFaas {
         }
     }
     public static void main(String[] arg) throws UnknownHostException, ClassNotFoundException {
-        start(arg[0]);
+        start(arg[0], arg[1]);
     }
 }

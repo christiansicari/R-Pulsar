@@ -71,7 +71,7 @@ public class FilePublisher {
                 	// Pushing a record to the RP
                 	String payload = readFile();
                 	Message.ARMessage push_msg = Message.ARMessage.newBuilder().setAction(Message.ARMessage.Action.STORE_QUEUE).setTopic(msg.getTopic()).addPayload(payload).build();
-                	System.out.println("Sending: Hello World!!");
+                	System.out.printf("Sending: %s", payload);
                     producer.stream(push_msg, msg.getHeader().getPeerId());
                 } catch (NoSuchAlgorithmException | InvalidKeySpecException | UnknownHostException | InterruptedException ex) {
                     Logger.getLogger(HelloWorldPublisher.class.getName()).log(Level.SEVERE, null, ex);

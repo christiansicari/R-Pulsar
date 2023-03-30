@@ -47,9 +47,10 @@ services:
       - master
       - producer
     entrypoint: java -cp Rpulsar.jar
-    command: [com.rutgers.Examples.SmokeConsumerFaas,/R-Pulsar/propertyFiles/consumer.prop]
+    command: [com.rutgers.Examples.SmokeConsumerFaas,/R-Pulsar/propertyFiles/consumer.prop,/R-Pulsar/configFiles/smokeconsumer.prop]
     volumes:
       - ${PWD}/propertyFiles/consumer.prop:/R-Pulsar/propertyFiles/consumer.prop
+      - ${PWD}/configFiles/smokeconsumer.prop:/R-Pulsar/configFiles/smokeconsumer.prop
       - ${PWD}/data/data:/data/data
 
 

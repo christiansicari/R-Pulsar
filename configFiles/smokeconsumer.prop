@@ -1,0 +1,3 @@
+profile.in1=fahrenheit
+profile.in2=temperature
+function=http://rpulsarless.freeddns.org:32006/function/shasum

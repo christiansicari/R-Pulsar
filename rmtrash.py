@@ -1,7 +1,7 @@
 import os
 import shutil
-allowed = ["target",".classpath","DevelopSteps.md","docker-compose.yaml","Documentation.html",".idea","notify_interest","propertyFiles","Rutgers-Pulsar.doxyfile","stormJAR"
-           ,"data","docker-compose-smoke-faas.yaml","Dockerfile",".git","LICENSE","pom.xml","pywaggle-logs",".settings","bin","DeploySteps.md","docker-compose-smoke-overlay.yaml","docs",".gitignore","notify_data",".project","README.md","src", "rmtrash.py"]
+allowed = ["target",".classpath","DevelopSteps.md","docker-compose.yaml","Documentation.html",".idea","propertyFiles","Rutgers-Pulsar.doxyfile","stormJAR"
+           ,"data","docker-compose-smoke-faas.yaml","Dockerfile",".git","LICENSE","pom.xml","pywaggle-logs",".settings","bin","DeploySteps.md","docker-compose-smoke-overlay.yaml","docs",".gitignore",".project","README.md","src", "rmtrash.py", "configFiles"]
 
 stage = []
 for filename in os.listdir("."):
