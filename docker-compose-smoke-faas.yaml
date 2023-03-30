@@ -64,9 +64,10 @@ services:
       - master
       - producer
     entrypoint: java -cp Rpulsar.jar
-    command: [com.rutgers.Examples.FilePublisher,/R-Pulsar/propertyFiles/producer.prop]
+    command: [com.rutgers.Examples.FilePublisher,/R-Pulsar/propertyFiles/producer.prop,/R-Pulsar/configFiles/smokeconsumer.prop]
     volumes:
       - ${PWD}/propertyFiles/functionproducer.prop:/R-Pulsar/propertyFiles/producer.prop
+      - ${PWD}/configFiles/smokeconsumer.prop:/R-Pulsar/configFiles/smokeconsumer.prop
       - ${PWD}/data/data:/data/data
 
   webhook-consumer:

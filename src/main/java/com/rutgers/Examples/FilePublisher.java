@@ -25,12 +25,7 @@ import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
 
 
-/**
- * This is and example of the use of the R-Pulsar API.
- * This example shows how to build a R-Pulsar Publisher.
- * @param keys
- * @return
- */
+
 public class FilePublisher { 
     
     static int numRecords = 10000;
@@ -79,14 +74,35 @@ public class FilePublisher {
             }
         }
     }
-    
 
-    public static void start(String propsFile) throws UnknownHostException, ClassNotFoundException {
+    public static Message.ARMessage.Header.Profile getProfile(Properties conf){
+        //Message.ARMessage.Header.Profile profile = ARMessage.Header.Profile.newBuilder().addSingle("function").addSingle("env").build();
+
+        String prefix = "profile.out";
+        Message.ARMessage.Header.Profile.Builder builder = Message.ARMessage.Header.Profile.newBuilder();
+
+        for (String key : conf.stringPropertyNames()) {
+            if (key.startsWith(prefix)) {
+                String prof = conf.getProperty(key);
+                builder = builder.addSingle(prof);
+                System.out.printf("Adding profile %s\n", prof);
+            }
+        }
+        return builder.build();
+    }
+
+    public static void start(String propsFile, String confFile) throws UnknownHostException, ClassNotFoundException {
         try {
             // TODO code application logic here           
             InputStream props = new FileInputStream(propsFile);//Resources.getResource("producer.prop").openStream();
             Properties properties = new Properties();
             properties.load(props);
+
+            InputStream conf = new FileInputStream(confFile);// Resources.getResource("consumer.prop").openStream();
+            // Create a java util properties object
+            Properties confProperties = new Properties();
+            // Load the consumer properties into memory
+            confProperties.load(conf);
             
             producer = new PulsarProducer(properties);
             producer.init();
@@ -115,7 +131,7 @@ public class FilePublisher {
             });
             
             //Create sensor profile
-            ARMessage.Header.Profile profile = ARMessage.Header.Profile.newBuilder().addSingle("function").addSingle("env").build();
+            ARMessage.Header.Profile profile = getProfile(confProperties);
             ARMessage.Header header = ARMessage.Header.newBuilder().setLatitude(0.00).setLongitude(0.00).setType(ARMessage.RPType.AR_PRODUCER).setProfile(profile).setPeerId(producer.getPeerID()).build();
             ARMessage msg = ARMessage.newBuilder().setHeader(header).setAction(ARMessage.Action.NOTIFY_INTEREST).build();
             //Send the message to the RP
@@ -126,7 +142,7 @@ public class FilePublisher {
         }
     }
     public static void main(String[] arg) throws UnknownHostException, ClassNotFoundException {
-        start(arg[0]);
+        start(arg[0], arg[1]);
 
     }
 }
