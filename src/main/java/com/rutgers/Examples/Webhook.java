@@ -40,7 +40,7 @@ import java.io.FileWriter;
  * @param keys
  * @return
  */
-public class Webhook {
+public class Webhook extends FunConsumer{
     static boolean running = false;
     static Thread thread = null;
     static PulsarConsumer consumer = null;

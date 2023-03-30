@@ -5,8 +5,8 @@ import java.net.UnknownHostException;
 public class Function {
 
     public static void start(String prodProps, String consProps, String confProps) throws UnknownHostException, ClassNotFoundException {
-        SmokeConsumerFaas.start(consProps, confProps);
-        FilePublisher.start(prodProps, confProps);
+        FunConsumer.start(consProps, confProps);
+        new FilePublisher().start(prodProps, confProps);
     }
     public static void main(String[] arg) throws UnknownHostException, ClassNotFoundException {
         String prodProps = arg[0];

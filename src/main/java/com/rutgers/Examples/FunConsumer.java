@@ -5,7 +5,6 @@
  */
 package com.rutgers.Examples;
 
-import com.google.common.io.Resources;
 import com.rutgers.Core.Listener;
 import com.rutgers.Core.Message;
 import com.rutgers.Core.MessageListener;
@@ -17,7 +16,6 @@ import java.io.InputStream;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -30,11 +28,10 @@ import java.io.OutputStream;
 import java.io.BufferedWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.BufferedWriter;
 import java.io.FileWriter;
 
 
-public class SmokeConsumerFaas {
+public class FunConsumer {
     static boolean running = false;
     static Thread thread = null;
     static PulsarConsumer consumer = null;

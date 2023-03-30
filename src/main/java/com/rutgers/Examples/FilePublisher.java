@@ -26,17 +26,10 @@ import java.nio.charset.StandardCharsets;
 
 
 
-public class FilePublisher { 
-    
-    static int numRecords = 10000;
-    static int recordSize = 200;
-    static int iterations = 20;
-    static boolean running = false;
-    static Thread thread = null;
-    static PulsarProducer producer = null;
-    static String outputFile = "/data/data";
+public class FilePublisher extends FunPublisher {
 
-    private static String readFile() {
+
+    public  String readPayload(){
         try{
             String text = new String(Files.readAllBytes(Paths.get(outputFile)), StandardCharsets.UTF_8);
             return text;
@@ -46,103 +39,9 @@ public class FilePublisher {
         }
     }
 
-    
-    public static class Push implements Runnable {
-        Message.ARMessage msg = null;
-        ARMessage.Header.Profile profile = null;
-        ARMessage.Header header = null;
-        String[] sentences = null;
-        
-        Push(Message.ARMessage msg) {
-            this.msg = msg;
-        }
-        
-        @Override
-        public void run() {
-        	// Creation of a record
-            //Using some compression techniques to reduce network overhead
-            for(int i = 0; i < iterations; i ++) {
-                try {
-                	// Pushing a record to the RP
-                	String payload = readFile();
-                	Message.ARMessage push_msg = Message.ARMessage.newBuilder().setAction(Message.ARMessage.Action.STORE_QUEUE).setTopic(msg.getTopic()).addPayload(payload).build();
-                	System.out.printf("Sending: %s", payload);
-                    producer.stream(push_msg, msg.getHeader().getPeerId());
-                } catch (NoSuchAlgorithmException | InvalidKeySpecException | UnknownHostException | InterruptedException ex) {
-                    Logger.getLogger(HelloWorldPublisher.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-    }
-
-    public static Message.ARMessage.Header.Profile getProfile(Properties conf){
-        //Message.ARMessage.Header.Profile profile = ARMessage.Header.Profile.newBuilder().addSingle("function").addSingle("env").build();
-
-        String prefix = "profile.out";
-        Message.ARMessage.Header.Profile.Builder builder = Message.ARMessage.Header.Profile.newBuilder();
-
-        for (String key : conf.stringPropertyNames()) {
-            if (key.startsWith(prefix)) {
-                String prof = conf.getProperty(key);
-                builder = builder.addSingle(prof);
-                System.out.printf("Adding profile %s\n", prof);
-            }
-        }
-        return builder.build();
-    }
-
-    public static void start(String propsFile, String confFile) throws UnknownHostException, ClassNotFoundException {
-        try {
-            // TODO code application logic here           
-            InputStream props = new FileInputStream(propsFile);//Resources.getResource("producer.prop").openStream();
-            Properties properties = new Properties();
-            properties.load(props);
-
-            InputStream conf = new FileInputStream(confFile);// Resources.getResource("consumer.prop").openStream();
-            // Create a java util properties object
-            Properties confProperties = new Properties();
-            // Load the consumer properties into memory
-            confProperties.load(conf);
-            
-            producer = new PulsarProducer(properties);
-            producer.init();
-            
-            producer.replayListener(new Listener(){
-                @Override
-                public void replay(MessageListener ml, Message.ARMessage o) {
-                    switch(o.getAction()) {
-                    	//Start streaming the sensor data
-                        case NOTIFY_START:
-                            running = true;
-                            //Start a new thread with Push class
-                            thread = new Thread(new Push(o));
-                            thread.start();
-                            break;
-                        case NOTIFY_STOP:
-                            try {
-                                running = false;
-                                thread.join();
-                            } catch (InterruptedException ex) {
-                                Logger.getLogger(HelloWorldPublisher.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                            break;
-                    }
-                }
-            });
-            
-            //Create sensor profile
-            ARMessage.Header.Profile profile = getProfile(confProperties);
-            ARMessage.Header header = ARMessage.Header.newBuilder().setLatitude(0.00).setLongitude(0.00).setType(ARMessage.RPType.AR_PRODUCER).setProfile(profile).setPeerId(producer.getPeerID()).build();
-            ARMessage msg = ARMessage.newBuilder().setHeader(header).setAction(ARMessage.Action.NOTIFY_INTEREST).build();
-            //Send the message to the RP
-            producer.post(msg, profile);
-            
-        } catch (IOException | InterruptedException | NoSuchAlgorithmException | InvalidKeySpecException ex) {
-            Logger.getLogger(HelloWorldPublisher.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
     public static void main(String[] arg) throws UnknownHostException, ClassNotFoundException {
-        start(arg[0], arg[1]);
+        FilePublisher obj = new FilePublisher();
+        obj.start(arg[0], arg[1]);
 
     }
 }
