@@ -5,7 +5,7 @@ import java.net.UnknownHostException;
 public class Function {
 
     public static void start(String prodProps, String consProps, String confProps) throws UnknownHostException, ClassNotFoundException {
-        FunConsumer.start(consProps, confProps);
+        new FunConsumer().start(consProps, confProps);
         new FilePublisher().start(prodProps, confProps);
     }
     public static void main(String[] arg) throws UnknownHostException, ClassNotFoundException {

@@ -37,38 +37,71 @@ services:
       - ${PWD}/propertyFiles/producer.prop:/R-Pulsar/propertyFiles/producer.prop
       - ${PWD}/pywaggle-logs:/R-Pulsar/pywaggle-logs/
 
-  function-consumer:
+  function1-cons:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: rpulsar-fconsumer
+    container_name: rpulsar-fc1
     network_mode: "host"
     depends_on:
       - master
       - producer
     entrypoint: java -cp Rpulsar.jar
-    command: [com.rutgers.Examples.FunConsumer,/R-Pulsar/propertyFiles/consumer.prop,/R-Pulsar/configFiles/smokeconsumer.prop]
+    command: [com.rutgers.Examples.FunConsumer,/R-Pulsar/propertyFiles/consumer.prop,/R-Pulsar/configFiles/config.prop]
     volumes:
       - ${PWD}/propertyFiles/consumer.prop:/R-Pulsar/propertyFiles/consumer.prop
-      - ${PWD}/configFiles/smokeconsumer.prop:/R-Pulsar/configFiles/smokeconsumer.prop
+      - ${PWD}/configFiles/smokefunction.prop:/R-Pulsar/configFiles/config.prop
       - ${PWD}/data/data:/data/data
 
 
-  function-producer:
+  function1-prod:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: rpulsar-fproducer
+    container_name: rpulsar-fp1
     network_mode: "host"
     depends_on:
       - master
       - producer
     entrypoint: java -cp Rpulsar.jar
-    command: [com.rutgers.Examples.FilePublisher,/R-Pulsar/propertyFiles/producer.prop,/R-Pulsar/configFiles/smokeconsumer.prop]
+    command: [com.rutgers.Examples.FilePublisher,/R-Pulsar/propertyFiles/producer.prop,/R-Pulsar/configFiles/config.prop]
     volumes:
       - ${PWD}/propertyFiles/functionproducer.prop:/R-Pulsar/propertyFiles/producer.prop
-      - ${PWD}/configFiles/smokeconsumer.prop:/R-Pulsar/configFiles/smokeconsumer.prop
+      - ${PWD}/configFiles/smokefunction.prop:/R-Pulsar/configFiles/config.prop
       - ${PWD}/data/data:/data/data
+
+  function2-cons:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rpulsar-fc2
+    network_mode: "host"
+    depends_on:
+      - master
+      - producer
+    entrypoint: java -cp Rpulsar.jar
+    command: [ com.rutgers.Examples.FunConsumer,/R-Pulsar/propertyFiles/consumer.prop,/R-Pulsar/configFiles/config.prop ]
+    volumes:
+      - ${PWD}/propertyFiles/consumer2.prop:/R-Pulsar/propertyFiles/consumer.prop
+      - ${PWD}/configFiles/hashfunction.prop:/R-Pulsar/configFiles/config.prop
+      - ${PWD}/data/data2:/data/data
+
+
+  function2-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rpulsar-fp2
+    network_mode: "host"
+    depends_on:
+      - master
+      - producer
+    entrypoint: java -cp Rpulsar.jar
+    command: [ com.rutgers.Examples.FilePublisher,/R-Pulsar/propertyFiles/producer.prop,/R-Pulsar/configFiles/config.prop ]
+    volumes:
+      - ${PWD}/propertyFiles/functionproducer2.prop:/R-Pulsar/propertyFiles/producer.prop
+      - ${PWD}/configFiles/hashfunction.prop:/R-Pulsar/configFiles/config.prop
+      - ${PWD}/data/data2:/data/data
 
   webhook-consumer:
     build:

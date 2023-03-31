@@ -37,7 +37,7 @@ services:
       - ${PWD}/propertyFiles/producer.prop:/R-Pulsar/propertyFiles/producer.prop
       - ${PWD}/pywaggle-logs:/R-Pulsar/pywaggle-logs/
 
-  function-consumer:
+  function:
     build:
       context: .
       dockerfile: Dockerfile
@@ -64,6 +64,8 @@ services:
       - master
       - producer
     entrypoint: java -cp Rpulsar.jar
-    command: [com.rutgers.Examples.Webhook,/R-Pulsar/propertyFiles/consumer.prop]
+    command: [ com.rutgers.Examples.FunConsumer,/R-Pulsar/propertyFiles/consumer.prop,/R-Pulsar/configFiles/smokeconsumer.prop ]
     volumes:
       - ${PWD}/propertyFiles/webhookconsumer.prop:/R-Pulsar/propertyFiles/consumer.prop
+      - ${PWD}/configFiles/webhookconsumer.prop:/R-Pulsar/configFiles/smokeconsumer.prop
+      - ${PWD}/data/data:/data/data

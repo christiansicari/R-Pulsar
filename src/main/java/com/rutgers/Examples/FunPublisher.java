@@ -14,9 +14,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Properties;
@@ -32,7 +29,6 @@ public abstract class FunPublisher {
     static boolean running = false;
     static Thread thread = null;
     static PulsarProducer producer = null;
-    static String outputFile = "/data/data";
 
     public abstract String readPayload();
 
@@ -42,7 +38,7 @@ public abstract class FunPublisher {
         ARMessage.Header.Profile profile = null;
         ARMessage.Header header = null;
         String[] sentences = null;
-        
+
         Push(ARMessage msg) {
             this.msg = msg;
         }
@@ -56,7 +52,7 @@ public abstract class FunPublisher {
                 	// Pushing a record to the RP
                 	String payload = readPayload();
                 	ARMessage push_msg = ARMessage.newBuilder().setAction(ARMessage.Action.STORE_QUEUE).setTopic(msg.getTopic()).addPayload(payload).build();
-                	System.out.printf("Sending: %s", payload);
+                	System.out.printf("Sending: %s\n", payload);
                     producer.stream(push_msg, msg.getHeader().getPeerId());
                 } catch (NoSuchAlgorithmException | InvalidKeySpecException | UnknownHostException | InterruptedException ex) {
                     Logger.getLogger(HelloWorldPublisher.class.getName()).log(Level.SEVERE, null, ex);

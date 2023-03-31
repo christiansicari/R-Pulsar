@@ -1,0 +1,5 @@
+profile.in1=fahrenheit
+profile.in2=temperature
+profile.out1=cows
+profile.out2=fun
+function=http://rpulsarless.freeddns.org:32006/function/cows

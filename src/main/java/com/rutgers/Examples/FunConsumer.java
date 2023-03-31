@@ -42,7 +42,7 @@ public class FunConsumer {
         System.out.printf("Invoking function at %s\n", functionUrl);
         try {
             String result = sendPOST(userAgent, functionUrl, payload);
-            System.out.println(result);
+            System.out.printf("RESULT: %s\n", result);
             writeResult(result);
         } catch (IOException e) {
 
@@ -84,6 +84,7 @@ public class FunConsumer {
     }
     private static void writeResult(String str){
         try{
+            System.out.printf("Writing on %s, data: %s\n", outputFile, str);
             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
             writer.write(str);       
             writer.close();

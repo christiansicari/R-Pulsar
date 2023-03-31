@@ -4,34 +4,54 @@
  * and open the template in the editor.
  */
 package com.rutgers.Examples;
-
-import com.rutgers.Core.Listener;
-import com.rutgers.Core.Message;
-import com.rutgers.Core.Message.ARMessage;
-import com.rutgers.Core.MessageListener;
-import com.rutgers.Core.PulsarProducer;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.UnknownHostException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Properties;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
 
+import static java.lang.Thread.sleep;
 
 
 public class FilePublisher extends FunPublisher {
+    static String outputFile = "/data/data";
 
+
+    public static String readFile(File file, Long fileLength, String text) throws IOException {
+        String line = null;
+
+        BufferedReader in = new BufferedReader(new java.io.FileReader(file));
+        in.skip(fileLength);
+        while((line = in.readLine()) != null)
+        {
+            text += line;
+        }
+        in.close();
+        return text;
+    }
+
+    public static String readStream() throws IOException {
+        File file = new File(outputFile);
+        String text = "";
+        if(file.exists() && file.canRead()){
+            long fileLength = file.length();
+            readFile(file,0L, text);
+            while(true){
+                if(fileLength<file.length()){
+                    readFile(file,fileLength, text);
+                    fileLength=file.length();
+                }
+            }
+        }
+        return text;
+    }
 
     public  String readPayload(){
         try{
-            String text = new String(Files.readAllBytes(Paths.get(outputFile)), StandardCharsets.UTF_8);
+
+            //String text = new String(Files.readAllBytes(Paths.get(outputFile)), StandardCharsets.UTF_8);
+            String text = new String(Files.readAllBytes(Paths.get(outputFile)));
+            System.out.printf("Reading payload from %s, data: %s\n", outputFile, text);
             return text;
         }catch (java.io.IOException e){
             System.out.printf("Error %s\n", e);

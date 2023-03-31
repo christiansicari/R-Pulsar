@@ -1,5 +1,5 @@
-profile.in1=fahrenheit
-profile.in2=temperature
-profile.out1=env
+profile.in1=cows
+profile.in2=fun
+profile.out1=shasum
 profile.out2=function
 function=http://rpulsarless.freeddns.org:32006/function/shasum
