@@ -11,6 +11,8 @@ import com.rutgers.Core.PulsarProducer;
 import com.rutgers.RuleEngine.Rule;
 import com.rutgers.RuleEngine.Rules;
 import com.rutgers.RuleEngine.TriggerProfileReaction;
+
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.UnknownHostException;
@@ -33,8 +35,12 @@ public class RuleExample {
     
     public static void main(String[] args) throws UnknownHostException, ClassNotFoundException {
         try {
+            if(args.length == 0) {
+                System.out.println("Need to specify the consumer property file!!");
+                System.exit(0);
+            }
             // TODO code application logic here
-            InputStream props = Resources.getResource("producer.prop").openStream();
+            InputStream props = new FileInputStream(args[0]);
             Properties properties = new Properties();
             properties.load(props);
             
@@ -46,8 +52,12 @@ public class RuleExample {
             //Create a header with the profile
             Message.ARMessage.Header.Profile profile = Message.ARMessage.Header.Profile.newBuilder().addSingle("temperature").addSingle("fahrenheit").build();
             Message.ARMessage.Header header = Message.ARMessage.Header.newBuilder().setLatitude(0.00).setLongitude(0.00).setType(Message.ARMessage.RPType.AR_PRODUCER).setProfile(profile).setPeerId(producer.getPeerID()).build();
+            // ORIGINAL
             //Telling the RP to store the message in the DHT
-            Message.ARMessage msg = Message.ARMessage.newBuilder().setHeader(header).setAction(Message.ARMessage.Action.STORE_DATA).build();
+            //Message.ARMessage msg = Message.ARMessage.newBuilder().setHeader(header).setAction(Message.ARMessage.Action.STORE_DATA).build();
+            // Edited by me
+            Message.ARMessage msg = Message.ARMessage.newBuilder().setHeader(header).setAction(Message.ARMessage.Action.NOTIFY_INTEREST).build();
+
 
             Rules boltRules = new Rules();
             //Add a rule with to check if X > 5 if the rule is fired the message with the AR Profile will be send
@@ -63,7 +73,8 @@ public class RuleExample {
             //Evalues the rules
             boltRules.eval(bindings);
             
-            
+
+        producer.post(msg, profile);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException | InterruptedException ex) {
             Logger.getLogger(RuleExample.class.getName()).log(Level.SEVERE, null, ex);
         }

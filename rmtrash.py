@@ -5,7 +5,7 @@ allowed = ["target",".classpath","DevelopSteps.md","docker-compose.yaml","Docume
 
 stage = []
 for filename in os.listdir("."):
-    if filename not in allowed:
+    if filename not in allowed and "docker-compose" not in filename:
         print(filename)
         stage.append(filename)
 
