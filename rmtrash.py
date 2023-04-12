@@ -1,6 +1,6 @@
 import os
 import shutil
-allowed = ["target",".classpath","DevelopSteps.md","docker-compose.yaml","Documentation.html",".idea","propertyFiles","Rutgers-Pulsar.doxyfile","stormJAR"
+allowed = ["startproxy.sh", "target",".classpath","DevelopSteps.md","docker-compose.yaml","Documentation.html",".idea","propertyFiles","Rutgers-Pulsar.doxyfile","stormJAR"
            ,"data","docker-compose-smoke-faas.yaml","Dockerfile",".git","LICENSE","pom.xml","pywaggle-logs",".settings","bin","DeploySteps.md","docker-compose-smoke-overlay.yaml","docs",".gitignore",".project","README.md","src", "rmtrash.py", "configFiles"]
 
 stage = []
